@@ -1,0 +1,54 @@
+<!-- Company Overview -->
+<div id="overview" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">About {{ stock.name }}</h2>
+    </div>
+    <div class="p-6">
+        <p class="text-gray-700 dark:text-gray-300 mb-6">{{ stock.description }}</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">CEO</h3>
+                    <p class="text-gray-900 dark:text-white">{{ stock.ceo }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Employees</h3>
+                    <p class="text-gray-900 dark:text-white">{{ "{:,}".format(stock.employees) }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Headquarters</h3>
+                    <p class="text-gray-900 dark:text-white">{{ stock.city }}, {{ stock.country }}</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Founded</h3>
+                    <p class="text-gray-900 dark:text-white">{{ stock.founded }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Website</h3>
+                    <a href="{{ stock.website }}" target="_blank" class="text-primary hover:underline">{{ stock.website|replace('https://', '')|replace('http://', '') }}</a>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Sector / Industry</h3>
+                    <p class="text-gray-900 dark:text-white">{{ stock.sector }} / {{ stock.industry }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-lg p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <span class="material-symbols-outlined text-blue-500 dark:text-blue-400">info</span>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Company Information</h3>
+                    <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                        <p>This information is provided by our data partners and may be delayed. For the most current information, please visit the company's website.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

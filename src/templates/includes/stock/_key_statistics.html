@@ -1,0 +1,42 @@
+<!-- Key Statistics -->
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Key Statistics</h2>
+    </div>
+    <div class="p-6 space-y-6">
+        <div class="grid grid-cols-2 gap-4">
+            <div class="stat-card">
+                <div class="stat-label">Market Cap</div>
+                <div class="stat-value">${{ "%.2f"|format(stock.market_cap) }}B</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">P/E Ratio</div>
+                <div class="stat-value">{{ "%.2f"|format(stock.pe_ratio) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">EPS (TTM)</div>
+                <div class="stat-value">${{ "%.2f"|format(stock.eps) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Dividend Yield</div>
+                <div class="stat-value">{{ "%.2f"|format(stock.dividend_yield) }}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">52-Week High</div>
+                <div class="stat-value">${{ "%.2f"|format(stock.week52_high) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">52-Week Low</div>
+                <div class="stat-value">${{ "%.2f"|format(stock.week52_low) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Volume</div>
+                <div class="stat-value">{{ "{:,}".format(stock.avg_volume) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Beta</div>
+                <div class="stat-value">{% if stock.beta is defined %}{{ "%.2f"|format(stock.beta) }}{% else %}N/A{% endif %}</div>
+            </div>
+        </div>
+    </div>
+</div>

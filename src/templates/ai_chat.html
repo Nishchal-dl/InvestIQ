@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant - InvestIQ{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<style>
+    /* Base Styles */
+    
+    
+    .dark body {
+        background-color: #0f172a;
+        color: #f8fafc;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Answer Section */
+    .answer-section {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .dark .answer-section {
+        background: #1e293b;
+    }
+    
+    .answer-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .answer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e0f2fe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .dark .answer-avatar {
+        background-color: #0c4a6e;
+    }
+    
+    .answer-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .answer-content {
+        line-height: 1.6;
+    }
+    
+    .sources {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .dark .sources {
+        border-color: #334155;
+    }
+    
+    .sources-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+    
+    .sources-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .source-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f3f4f6;
+        color: #4b5563;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+    }
+    
+    .dark .source-tag {
+        background-color: #1f2937;
+        color: #9ca3af;
+    }
+    
+    .source-tag .material-symbols-outlined {
+        font-size: 1rem;
+        margin-right: 0.25rem;
+    }
+    
+    /* Prompt Examples */
+    .prompt-examples {
+        margin: 3rem 0;
+    }
+    
+    .prompt-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .dark .prompt-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    .prompt-card h4 {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+    
+    .dark .prompt-card h4 {
+        color: #f9fafb;
+    }
+    
+    .prompt-card p {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        line-height: 1.4;
+    }
+    
+    .dark .prompt-card p {
+        color: #9ca3af;
+    }
+    
+    .prompt-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .dark .prompt-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+    }
+    
+    .prompt-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .prompt-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Include Search Section -->
+        {% include 'includes/ai_chat/_search_section.html' %}
+        
+        <!-- Include Prompt Examples -->
+        {% include 'includes/ai_chat/_prompt_examples.html' %}
+
+        <!-- Include Answer Section -->
+        {% include 'includes/ai_chat/_answer_section.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const promptCards = document.querySelectorAll('.prompt-card');
+    const answerSection = document.querySelector('.answer-section');
+
+    // Initially hide the answer section
+    if (answerSection) {
+        answerSection.style.display = 'none';
+    }
+
+    // Function to perform search
+    function performSearch(query) {
+        if (!query) return;
+        
+        // Show loading state
+        searchButton.disabled = true;
+        searchButton.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span>';
+        
+        // Here you would typically make an API call to your backend
+        console.log('Searching for:', query);
+        
+        // Simulate API call with timeout
+        setTimeout(() => {
+            // Show the answer section
+            if (answerSection) {
+                answerSection.style.display = 'block';
+                // Scroll to the answer section
+                answerSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Reset button state
+            searchButton.disabled = false;
+            searchButton.innerHTML = '<span class="material-symbols-outlined">send</span>';
+            
+            // In a real app, you would update the answer section with the API response here
+        }, 1000);
+    }
+
+    // Handle form submission
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        performSearch(query);
+    });
+
+    // Add click handler for prompt cards
+    promptCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const prompt = this.getAttribute('data-prompt');
+            if (prompt) {
+                searchInput.value = prompt;
+                searchInput.focus();
+                // Auto-trigger search when clicking a prompt card
+                performSearch(prompt);
+            }
+            
+            // Add visual feedback
+            this.classList.add('ring-2', 'ring-primary-500');
+            setTimeout(() => {
+                this.classList.remove('ring-2', 'ring-primary-500');
+            }, 300);
+        });
+        
+        // Add hover effect
+        card.addEventListener('mouseenter', function() {
+            this.classList.add('ring-1', 'ring-primary-200', 'dark:ring-gray-600');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.classList.remove('ring-1', 'ring-primary-200', 'dark:ring-gray-600');
+        });
+    });
+});
+</script>
+{% endblock %}

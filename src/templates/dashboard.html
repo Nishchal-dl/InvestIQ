@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - InvestIQ{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+{% include 'includes/dashboard/_welcome_section.html' %}
+
+
+
+<!-- Market Overview Section -->
+{% include 'includes/dashboard/_market_overview.html' %}
+
+<!-- Watchlist Section -->
+{% include 'includes/dashboard/_watchlist.html' %}
+
+<!-- AI Insights Section -->
+{% include 'includes/dashboard/_ai_insights.html' %}
+
+<!-- Market News Section -->
+{% include 'includes/dashboard/_market_news.html' %}
+
+<!-- Recent Activity Section -->
+{% include 'includes/dashboard/_recent_activity.html' %}
+
+{% endblock %}

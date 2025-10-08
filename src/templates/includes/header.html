@@ -1,0 +1,65 @@
+<header class="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center">
+                <a href="{{ url_for('main.dashboard') }}" class="flex items-center">
+                    <div class="w-8 h-8 text-primary">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L3 7L12 12L21 7L12 2Z" fill="currentColor"/>
+                            <path d="M3 12L12 17L21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 17L12 22L21 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="ml-2 text-xl font-bold text-gray-900 dark:text-white">InvestIQ</span>
+                </a>
+            </div>
+
+            <!-- Right section -->
+            <div class="flex items-center">
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex md:space-x-6 md:mr-4">
+                    <a href="{{ url_for('main.dashboard') }}" class="text-gray-900 dark:text-white px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary transition-colors flex items-center">
+                        <span class="material-symbols-outlined text-base mr-1">dashboard</span>
+                        Dashboard
+                    </a>
+                    <a href="{{ url_for('main.ai_chat') }}" class="bg-gradient-to-r from-primary to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center">
+                        <span class="material-symbols-outlined text-base mr-1">auto_awesome</span>
+                        Ask AI
+                    </a>
+                </nav>
+
+                <!-- Theme Toggle -->
+                <button type="button" onclick="document.documentElement.classList.toggle('dark'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <span class="dark:hidden material-symbols-outlined">dark_mode</span>
+                    <span class="hidden dark:inline material-symbols-outlined">light_mode</span>
+                </button>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden ml-2">
+                    <button type="button" onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="md:hidden hidden" id="mobile-menu">
+        <div class="pt-2 pb-3 space-y-1">
+            <a href="{{ url_for('main.dashboard') }}" class="block px-4 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800">
+                Dashboard
+            </a>
+            <a href="#" class="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+                Markets
+            </a>
+            <a href="#" class="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+                Watchlist
+            </a>
+            <a href="#" class="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+                News
+            </a>
+        </div>
+    </div>
+</header>

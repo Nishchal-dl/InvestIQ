@@ -1,0 +1,58 @@
+<!-- Analyst Ratings -->
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Analyst Ratings</h2>
+    </div>
+    <div class="p-6">
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Consensus Rating</div>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200">
+                    {{ stock.analyst_consensus.rating }}
+                </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                <div class="bg-green-500 h-2.5 rounded-full" style="width: {{ stock.analyst_consensus.score * 10 if stock.analyst_consensus.score is defined else 0 }}%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>0</span>
+                <span>5</span>
+                <span>10</span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Price Target</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">${{ "%.2f"|format(stock.analyst_consensus.price_target) }}</div>
+                <div class="mt-1 flex items-center text-sm">
+                    <span class="{% if stock.analyst_consensus.price_target > stock.price %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %} font-medium">
+                        {% if stock.analyst_consensus.price_target > stock.price %}+{% endif %}{{ "%.2f"|format(((stock.analyst_consensus.price_target / stock.price) - 1) * 100) }}%
+                    </span>
+                    <span class="text-gray-500 dark:text-gray-400 ml-1">from current</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Analysts</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ stock.analyst_consensus.analysts }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Covering</div>
+            </div>
+        </div>
+        
+        <div>
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Rating Distribution</h3>
+            <div class="space-y-2">
+                {% for rating in stock.analyst_consensus.ratings %}
+                <div class="flex items-center">
+                    <span class="w-24 text-sm text-gray-500 dark:text-gray-400">{{ rating.rating }}</span>
+                    <div class="flex-1 h-4 bg-gray-200 rounded-full dark:bg-gray-700 mx-2">
+                        <div class="h-4 bg-primary rounded-full" style="width: {{ (rating.count / stock.analyst_consensus.total_ratings) * 100 }}%"></div>
+                    </div>
+                    <span class="w-8 text-sm text-right text-gray-700 dark:text-gray-300">{{ rating.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}{{ stock.name }} ({{ stock.symbol }}) - Stock Details | InvestIQ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-container {
+        height: 400px;
+        position: relative;
+    }
+    
+    .price-change {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+    
+    .price-up {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .price-down {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .stat-card {
+        @apply bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow;
+    }
+    
+    .stat-label {
+        @apply text-sm font-medium text-gray-500 dark:text-gray-400;
+    }
+    
+    .stat-value {
+        @apply text-xl font-semibold text-gray-900 dark:text-white mt-1;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    @media (max-width: 640px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Stock Header -->
+{% include 'includes/stock/_header.html' %}
+
+<!-- Main Content -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Price Chart -->
+        {% include 'includes/stock/_price_chart.html' %}
+        
+        <!-- AI Recommendation Section -->
+        {% include 'includes/stock/_ai_recommendation.html' %}
+
+        <!-- AI Sentiment Analysis Section -->
+        {% include 'includes/stock/_sentiment_analysis.html' %}
+        
+        <!-- Company Overview -->
+        {% include 'includes/stock/_company_overview.html' %}
+        
+        <!-- News Section -->
+    </div>
+    
+    <!-- Right Column -->
+    <div class="space-y-6">
+        <!-- Key Statistics -->
+        {% include 'includes/stock/_key_statistics.html' %}
+        
+        <!-- Financial Highlights -->
+        
+        <!-- Financial Highlights -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Financial Highlights</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Revenue (TTM)</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">${{ "%.2f"|format(stock.revenue_ttm/1000000000) }}B</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Gross Profit (TTM)</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">${{ "%.2f"|format(stock.gross_profit/1000000000) }}B</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Profit Margin</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ "%.2f"|format(stock.profit_margin * 100) }}%</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Return on Equity</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ "%.2f"|format(stock.return_on_equity * 100) }}%</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analyst Ratings -->
+        {% include 'includes/stock/_analyst_ratings.html' %}
+        
+        <!-- Quick Actions -->
+        {% include 'includes/stock/_quick_actions.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Generate sample price data
+    const labels = [];
+    const prices = [];
+    let currentPrice = {{ stock.price }} * 0.95; // Start slightly below current price
+    
+    // Generate data points for the last 30 days
+    for (let i = 30; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        
+        // Add some random variation to the price
+        const change = (Math.random() - 0.5) * 5;
+        currentPrice = Math.max(1, currentPrice + change);
+        prices.push(currentPrice);
+    }
+    
+    // Create the chart
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Price',
+                data: prices,
+                borderColor: '#137fec',
+                backgroundColor: 'rgba(19, 127, 236, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return '$' + context.parsed.y.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 6
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(0);
+                        }
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // Update chart on window resize
+    window.addEventListener('resize', function() {
+        chart.resize();
+    });
+});
+</script>
+{% endblock %}
