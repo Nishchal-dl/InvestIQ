@@ -20,7 +20,7 @@ supervisor = create_supervisor(
 
 def prepare_human_message(ticker: str) -> str:
     return f"""
-Analyze this stock data and provide your analysis in the requested JSON format.
+Analyze this stock data, financial information, recent news and provide your analysis in the requested JSON format.
 
 STOCK DATA for {ticker.upper()}:
 

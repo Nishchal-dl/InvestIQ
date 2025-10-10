@@ -441,10 +441,13 @@ def dashboard():
 def get_stock_analysis(symbol):
     """Helper function to get stock analysis from supervisor agent"""
     try:
+        current_app.logger.info(f"Fetching analysis for {symbol}")
         analysis = invoke_supervisor(symbol)
+        if not analysis:
+            raise ValueError(f"No analysis returned for {symbol}")
         return analysis
     except Exception as e:
-        current_app.logger.error(f"Error getting stock analysis: {str(e)}")
+        current_app.logger.error(f"Error in get_stock_analysis for {symbol}: {str(e)}")
         return None
 
 @main.route('/stock/<symbol>')
@@ -466,21 +469,41 @@ def stock_detail(symbol):
         stock['country'] = 'United States'
         stock['founded'] = 2000
     
-    # Get analysis directly without caching
+    # Get fresh analysis
     analysis = get_stock_analysis(symbol)
-    
+    print(analysis)
     # Get recent news for the stock
     recent_news = get_mock_news(symbol)[:5]  # Get first 5 news items
+    
+    # Prepare default values in case analysis is None
+    default_analysis = {
+        'sentiment_analysis': {},
+        'company_overview': 'Analysis not available at the moment. Please try again later.',
+        'stock_recommendation': {
+            'recommendation': 'N/A',
+            'confidence': 0,
+            'reasoning': 'Analysis in progress...'
+        },
+        'risk_assessment': {
+            'level': 'Medium',
+            'factors': ['Market data not available'],
+            'score': 5
+        }
+    }
+    
+    if analysis is None:
+        current_app.logger.warning(f"No analysis available for {symbol}, using defaults")
+        analysis = default_analysis
     
     # Prepare the context for the template
     context = {
         'stock': stock,
         'recent_news': recent_news,
-        'ai_sentiment': analysis.get('sentiment_analysis', {}) if analysis else {},
-        'sentiment_events': analysis.get('sentiment_analysis', {}).get('news_sentiment', []) if analysis else [],
-        'company_overview': analysis.get('company_overview', '') if analysis else '',
-        'stock_recommendation': analysis.get('stock_recommendation', {}) if analysis else {},
-        'risk_assessment': analysis.get('risk_assessment', {}) if analysis else {}
+        'ai_sentiment': analysis.get('sentiment_analysis', {}),
+        'sentiment_events': analysis.get('sentiment_analysis', {}).get('news_sentiment', []),
+        'company_overview': analysis.get('company_overview', default_analysis['company_overview']),
+        'stock_recommendation': analysis.get('stock_recommendation', default_analysis['stock_recommendation']),
+        'risk_assessment': analysis.get('risk_assessment', default_analysis['risk_assessment'])
     }
     
     # Add any additional stock details
