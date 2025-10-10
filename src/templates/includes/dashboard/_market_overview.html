@@ -1,69 +1,104 @@
+{% if market_overview %}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- S&P 500 -->
+    {% if market_overview.indices['S&P 500'] %}
+    {% set sp500 = market_overview.indices['S&P 500'] %}
     <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">S&P 500</p>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">5,123.45</h3>
-                <p class="text-sm font-medium text-green-500 flex items-center mt-1">
-                    <span class="material-symbols-outlined text-base mr-1">trending_up</span>
-                    +45.67 (+0.90%)
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ "{:,.2f}".format(sp500.price) }}</h3>
+                <p class="text-sm font-medium {{ 'text-green-500' if sp500.is_positive else 'text-red-500' }} flex items-center mt-1">
+                    <span class="material-symbols-outlined text-base mr-1">
+                        {{ 'trending_up' if sp500.is_positive else 'trending_down' }}
+                    </span>
+                    {{ "+" if sp500.is_positive }}{{ "{:.2f}".format(sp500.change) }} ({{ "{:.2f}%".format(sp500.change_percent) }})
                 </p>
             </div>
-            <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+            <div class="p-3 rounded-lg {{ 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' if sp500.is_positive else 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' }}">
                 <span class="material-symbols-outlined">show_chart</span>
             </div>
         </div>
     </div>
+    {% endif %}
     
     <!-- NASDAQ -->
+    {% if market_overview.indices['NASDAQ'] %}
+    {% set nasdaq = market_overview.indices['NASDAQ'] %}
     <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">NASDAQ</p>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">16,245.32</h3>
-                <p class="text-sm font-medium text-red-500 flex items-center mt-1">
-                    <span class="material-symbols-outlined text-base mr-1">trending_down</span>
-                    -32.10 (-0.20%)
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ "{:,.2f}".format(nasdaq.price) }}</h3>
+                <p class="text-sm font-medium {{ 'text-green-500' if nasdaq.is_positive else 'text-red-500' }} flex items-center mt-1">
+                    <span class="material-symbols-outlined text-base mr-1">
+                        {{ 'trending_up' if nasdaq.is_positive else 'trending_down' }}
+                    </span>
+                    {{ "+" if nasdaq.is_positive }}{{ "{:.2f}".format(nasdaq.change) }} ({{ "{:.2f}%".format(nasdaq.change_percent) }})
                 </p>
             </div>
-            <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+            <div class="p-3 rounded-lg {{ 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' if nasdaq.is_positive else 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' }}">
                 <span class="material-symbols-outlined">show_chart</span>
             </div>
         </div>
     </div>
+    {% endif %}
     
     <!-- DOW -->
+    {% if market_overview.indices['DOW'] %}
+    {% set dow = market_overview.indices['DOW'] %}
     <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">DOW</p>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">38,765.43</h3>
-                <p class="text-sm font-medium text-green-500 flex items-center mt-1">
-                    <span class="material-symbols-outlined text-base mr-1">trending_up</span>
-                    +120.50 (+0.31%)
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ "{:,.2f}".format(dow.price) }}</h3>
+                <p class="text-sm font-medium {{ 'text-green-500' if dow.is_positive else 'text-red-500' }} flex items-center mt-1">
+                    <span class="material-symbols-outlined text-base mr-1">
+                        {{ 'trending_up' if dow.is_positive else 'trending_down' }}
+                    </span>
+                    {{ "+" if dow.is_positive }}{{ "{:.2f}".format(dow.change) }} ({{ "{:.2f}%".format(dow.change_percent) }})
                 </p>
             </div>
-            <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+            <div class="p-3 rounded-lg {{ 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' if dow.is_positive else 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' }}">
                 <span class="material-symbols-outlined">show_chart</span>
             </div>
         </div>
     </div>
+    {% endif %}
     
     <!-- CRYPTO -->
+    {% if market_overview.crypto %}
+    {% set crypto = market_overview.crypto %}
     <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">CRYPTO</p>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">$1.23T</h3>
-                <p class="text-sm font-medium text-green-500 flex items-center mt-1">
-                    <span class="material-symbols-outlined text-base mr-1">trending_up</span>
-                    +5.4% (24h)
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${{ "%.2f"|format(crypto.btc_price) }}</h3>
+                <p class="text-sm font-medium {{ 'text-green-500' if crypto.btc_change_pct >= 0 else 'text-red-500' }} flex items-center mt-1">
+                    <span class="material-symbols-outlined text-base mr-1">
+                        {{ 'trending_up' if crypto.btc_change_pct >= 0 else 'trending_down' }}
+                    </span>
+                    {{ "+" if crypto.btc_change_pct >= 0 }}{{ "%.2f"|format(crypto.btc_change_pct) }}% (24h)
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    ETH: ${{ "%.2f"|format(crypto.eth_price) }} 
+                    <span class="{{ 'text-green-500' if crypto.eth_change_pct >= 0 else 'text-red-500' }}">
+                        ({{ "+" if crypto.eth_change_pct >= 0 }}{{ "%.2f"|format(crypto.eth_change_pct) }}%)
+                    </span>
                 </p>
             </div>
-            <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+            <div class="p-3 rounded-lg {{ 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' if crypto.is_positive else 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' }}">
                 <span class="material-symbols-outlined">currency_bitcoin</span>
             </div>
         </div>
     </div>
+    {% endif %}
+    
 </div>
+
+{% if last_updated %}
+<div class="text-right text-xs text-gray-500 dark:text-gray-400 mb-4">
+    Last updated: {{ last_updated }}
+</div>
+{% endif %}
+{% endif %}

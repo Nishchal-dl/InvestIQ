@@ -1,10 +1,30 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, current_app
 from datetime import datetime, timedelta
 import random
 import json
 import time
+from functools import wraps
+from flask_caching import Cache
+from src.agent.supervisor import invoke_supervisor
+
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables
+env_path = Path(__file__).parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# Import services
+import sys
+sys.path.append(str(Path(__file__).parent.parent))
+from services.stock_service import stock_service
 
 main = Blueprint('main', __name__)
+
+def init_app(app):
+    """Initialize the application"""
+    return app
 
 # Extended mock data for demonstration
 mock_stock_data = {
@@ -357,24 +377,75 @@ def get_mock_news(symbol):
 @main.route('/')
 @main.route('/dashboard')
 def dashboard():
-    # Get watchlist data (top 5 stocks for the dashboard)
-    watchlist = [
-        mock_stock_data['AAPL'],
-        mock_stock_data['MSFT'],
-        mock_stock_data['GOOGL'],
-        mock_stock_data['AMZN'],
-        mock_stock_data['TSLA']
-    ]
-    
-    # Get recent news (mix of all companies)
-    all_news = []
-    for symbol in ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA']:
-        all_news.extend(get_mock_news(symbol))
-    
-    # Sort by published_at date and get the 6 most recent
-    recent_news = sorted(all_news, key=lambda x: x['published_at'], reverse=True)[:6]
-    
+    try:
+        # Get watchlist data (top 5 stocks for the dashboard)
+        watchlist = stock_service.get_watchlist_data()
+        
+        # Get market overview data
+        market_overview = stock_service.get_market_overview()
+        
+        # Get recent market news
+        recent_news = stock_service.get_market_news(query='stocks', page_size=6)
+        
+        # Get AI insights (you can implement this later)
+        ai_insights = {
+            'market_sentiment': 'positive',
+            'trending_stocks': ['NVDA', 'TSLA', 'AMD'],
+            'sector_performance': {
+                'Technology': 1.5,
+                'Healthcare': 0.8,
+                'Finance': 0.3,
+                'Energy': -0.5,
+                'Consumer': 0.7
+            }
+        }
+        
+        
+        return render_template(
+            'dashboard.html',
+            watchlist=watchlist,
+            market_overview=market_overview,
+            recent_news=recent_news,
+            ai_insights=ai_insights,
+        )
+        
+    except Exception as e:
+        print(f"Error in dashboard route: {str(e)}")
+        # Fallback to mock data in case of error
+        watchlist = [
+            mock_stock_data['AAPL'],
+            mock_stock_data['MSFT'],
+            mock_stock_data['GOOGL'],
+            mock_stock_data['AMZN'],
+            mock_stock_data['TSLA']
+        ]
+        
+        # Get recent news (mix of all companies)
+        all_news = []
+        for symbol in ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA']:
+            all_news.extend(get_mock_news(symbol))
+        
+        # Sort by published_at date and get the 6 most recent
+        recent_news = sorted(all_news, key=lambda x: x['published_at'], reverse=True)[:6]
+        
+        return render_template(
+            'dashboard.html',
+            watchlist=watchlist,
+            market_overview={},
+            recent_news=recent_news,
+            ai_insights={},
+            recent_activity=[]
+        )
     return render_template('dashboard.html', watchlist=watchlist, news=recent_news)
+
+def get_stock_analysis(symbol):
+    """Helper function to get stock analysis from supervisor agent"""
+    try:
+        analysis = invoke_supervisor(symbol)
+        return analysis
+    except Exception as e:
+        current_app.logger.error(f"Error getting stock analysis: {str(e)}")
+        return None
 
 @main.route('/stock/<symbol>')
 def stock_detail(symbol):
@@ -394,11 +465,32 @@ def stock_detail(symbol):
         stock['city'] = 'San Francisco'
         stock['country'] = 'United States'
         stock['founded'] = 2000
-        stock['website'] = '#'
-        stock['description'] = f"{symbol} is a leading technology company specializing in innovative solutions for the modern digital age."
     
-    news = get_mock_news(symbol)
-    return render_template('stock_detail.html', stock=stock, news=news)
+    # Get analysis directly without caching
+    analysis = get_stock_analysis(symbol)
+    
+    # Get recent news for the stock
+    recent_news = get_mock_news(symbol)[:5]  # Get first 5 news items
+    
+    # Prepare the context for the template
+    context = {
+        'stock': stock,
+        'recent_news': recent_news,
+        'ai_sentiment': analysis.get('sentiment_analysis', {}) if analysis else {},
+        'sentiment_events': analysis.get('sentiment_analysis', {}).get('news_sentiment', []) if analysis else [],
+        'company_overview': analysis.get('company_overview', '') if analysis else '',
+        'stock_recommendation': analysis.get('stock_recommendation', {}) if analysis else {},
+        'risk_assessment': analysis.get('risk_assessment', {}) if analysis else {}
+    }
+    
+    # Add any additional stock details
+    stock['website'] = '#'
+    stock['description'] = f"{symbol} is a leading technology company specializing in innovative solutions for the modern digital age."
+    
+    # Add the stock to the context
+    context['stock'] = stock
+    
+    return render_template('stock_detail.html', **context)
 
 @main.route('/api/stock/<symbol>')
 def stock_data(symbol):

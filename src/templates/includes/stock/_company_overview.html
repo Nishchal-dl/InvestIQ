@@ -4,7 +4,13 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">About {{ stock.name }}</h2>
     </div>
     <div class="p-6">
-        <p class="text-gray-700 dark:text-gray-300 mb-6">{{ stock.description }}</p>
+        {% if company_overview %}
+            <div class="prose dark:prose-invert max-w-none mb-6">
+                <p class="text-gray-700 dark:text-gray-300">{{ company_overview }}</p>
+            </div>
+        {% else %}
+            <p class="text-gray-700 dark:text-gray-300 mb-6">{{ stock.description|default('No company description available.') }}</p>
+        {% endif %}
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="space-y-4">
@@ -45,7 +51,10 @@
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Company Information</h3>
                     <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
-                        <p>This information is provided by our data partners and may be delayed. For the most current information, please visit the company's website.</p>
+                        <p>This information is provided by our data partners and AI analysis. For the most current information, please visit the company's website.</p>
+                        {% if company_overview %}
+                        <p class="mt-1 text-xs opacity-75">AI-generated overview based on latest available data.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
