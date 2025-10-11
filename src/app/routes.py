@@ -439,13 +439,28 @@ def dashboard():
     return render_template('dashboard.html', watchlist=watchlist, news=recent_news)
 
 def get_stock_analysis(symbol):
-    """Helper function to get stock analysis from supervisor agent"""
+    """Helper function to get stock analysis from supervisor agent with caching"""
+    from .cache import cache
+    
+    # Create a cache key
+    cache_key = f'stock_analysis_{symbol}'
+    
+    # Try to get from cache first
+    analysis = cache.get(cache_key)
+    if analysis is not None:
+        current_app.logger.info(f"Cache hit for {symbol}")
+        return analysis
+        
     try:
-        current_app.logger.info(f"Fetching analysis for {symbol}")
+        current_app.logger.info(f"Cache miss for {symbol}, fetching from supervisor")
         analysis = invoke_supervisor(symbol)
         if not analysis:
             raise ValueError(f"No analysis returned for {symbol}")
+            
+        # Store in cache with 30 min expiration
+        cache.set(cache_key, analysis, timeout=1800)
         return analysis
+        
     except Exception as e:
         current_app.logger.error(f"Error in get_stock_analysis for {symbol}: {str(e)}")
         return None

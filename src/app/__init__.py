@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask
+from .cache import cache
 from .filters import time_ago
 from src.config import Config
 
@@ -15,6 +16,11 @@ def create_app():
     template_dir = os.path.join(root_dir, 'templates')
     app = Flask(__name__, template_folder=template_dir)
     app.config.from_object(Config)
+    
+    # Configure cache
+    app.config['CACHE_TYPE'] = 'SimpleCache'  # In-memory cache for development
+    app.config['CACHE_DEFAULT_TIMEOUT'] = 1800  # 30 minutes in seconds
+    cache.init_app(app)
     
     # Register blueprints
     from . import routes
