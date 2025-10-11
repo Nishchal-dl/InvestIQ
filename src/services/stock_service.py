@@ -6,7 +6,6 @@ import os
 import json
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 class StockService:
@@ -18,7 +17,7 @@ class StockService:
             '^DJI': 'DOW',
             '^IXIC': 'NASDAQ',
             '^RUT': 'Russell 2000',
-            '^NDX': 'NASDAQ-100'  # Adding NASDAQ-100 index
+            '^NDX': 'NASDAQ-100' 
         }
     
     def get_stock_data(self, ticker: str) -> Dict[str, Any]:
@@ -29,14 +28,11 @@ class StockService:
             stock = yf.Ticker(ticker)
             info = stock.info
             
-            # Get historical data for 1 year
             hist = stock.history(period="1y")
             
-            # Calculate 52-week high/low
             week52_high = hist['High'].max()
             week52_low = hist['Low'].min()
             
-            # Get current price and change
             current_price = info.get('currentPrice', info.get('regularMarketPrice', 0))
             previous_close = info.get('previousClose', 0)
             change = round(current_price - previous_close, 2)
@@ -122,7 +118,7 @@ class StockService:
         Get data for the watchlist (top 5 stocks)
         """
         watchlist = []
-        for ticker in self.top_tickers[:5]:  # Get top 5 stocks
+        for ticker in self.top_tickers[:5]:  
             stock_data = self.get_stock_data(ticker)
             if stock_data:
                 watchlist.append(stock_data)
@@ -200,7 +196,6 @@ class StockService:
     def _get_market_status(self) -> Dict[str, Any]:
         """Get current market status (open/closed)"""
         try:
-            # Using S&P 500 as a proxy for market status
             sp500 = yf.Ticker('^GSPC')
             hist = sp500.history(period='1d')
             
@@ -273,14 +268,11 @@ class StockService:
     def _get_market_sentiment(self) -> Dict[str, Any]:
         """Get overall market sentiment"""
         try:
-            # This is a simplified version - in a real app, you might use a sentiment analysis API
-            # or calculate based on market indicators
             vix = yf.Ticker('^VIX')
             vix_data = vix.history(period='1d')
             
             vix_current = vix_data['Close'].iloc[-1] if not vix_data.empty else 20
             
-            # VIX > 30 is considered high (bearish), < 20 is low (bullish)
             if vix_current > 30:
                 sentiment = 'bearish'
                 sentiment_score = -1
@@ -310,16 +302,11 @@ class StockService:
     def _get_market_movers(self) -> Dict[str, List[Dict[str, Any]]]:
         """Get top market movers (gainers and losers)"""
         try:
-            # Using yfinance's top gainers/losers
             gainers = []
             losers = []
             
-            # Get top 5 gainers and losers from S&P 500
             sp500 = yf.Tickers('^GSPC')
             sp500_tickers = sp500.tickers
-            
-            # This is a simplified version - in a real app, you'd want to get actual gainers/losers
-            # from a more comprehensive data source
             
             return {
                 'gainers': gainers[:5],  # Top 5 gainers

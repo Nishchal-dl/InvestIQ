@@ -26,5 +26,8 @@ To run the induvidual notebooks
 jupyter notebook <notebook_name>.ipynb
 ```
 
-## Report
-TBD
+## TODO
+- Implement AI insight in the dashboard
+- Use RAG from financial_rag_agent notebook to answer questions about the stock
+- Report
+- Demo

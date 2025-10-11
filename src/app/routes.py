@@ -11,11 +11,9 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Load environment variables
 env_path = Path(__file__).parent.parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
-# Import services
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
 from services.stock_service import stock_service
@@ -299,7 +297,6 @@ def get_mock_news(symbol):
     }
     company = companies.get(symbol, 'the company')
     
-    # Define some common tags based on company
     company_tags = {
         'AAPL': ['Technology', 'Consumer Electronics', 'Innovation'],
         'MSFT': ['Software', 'Cloud', 'Enterprise'],
@@ -363,13 +360,11 @@ def get_mock_news(symbol):
         }
     ]
     
-    # Return a random selection of 3 news items with unique titles
     unique_news = {}
     for item in news_items:
         if item['title'] not in unique_news:
             unique_news[item['title']] = item
     
-    # Ensure we have at least 3 unique news items
     if len(unique_news) >= 3:
         return random.sample(list(unique_news.values()), 3)
     return list(unique_news.values())
@@ -378,16 +373,13 @@ def get_mock_news(symbol):
 @main.route('/dashboard')
 def dashboard():
     try:
-        # Get watchlist data (top 5 stocks for the dashboard)
         watchlist = stock_service.get_watchlist_data()
         
-        # Get market overview data
         market_overview = stock_service.get_market_overview()
         
-        # Get recent market news
         recent_news = stock_service.get_market_news(query='stocks', page_size=6)
         
-        # Get AI insights (you can implement this later)
+        # TODO: Implement AI insights
         ai_insights = {
             'market_sentiment': 'positive',
             'trending_stocks': ['NVDA', 'TSLA', 'AMD'],
@@ -411,7 +403,6 @@ def dashboard():
         
     except Exception as e:
         print(f"Error in dashboard route: {str(e)}")
-        # Fallback to mock data in case of error
         watchlist = [
             mock_stock_data['AAPL'],
             mock_stock_data['MSFT'],
@@ -420,12 +411,10 @@ def dashboard():
             mock_stock_data['TSLA']
         ]
         
-        # Get recent news (mix of all companies)
         all_news = []
         for symbol in ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA']:
             all_news.extend(get_mock_news(symbol))
         
-        # Sort by published_at date and get the 6 most recent
         recent_news = sorted(all_news, key=lambda x: x['published_at'], reverse=True)[:6]
         
         return render_template(
@@ -442,10 +431,8 @@ def get_stock_analysis(symbol):
     """Helper function to get stock analysis from supervisor agent with caching"""
     from .cache import cache
     
-    # Create a cache key
     cache_key = f'stock_analysis_{symbol}'
     
-    # Try to get from cache first
     analysis = cache.get(cache_key)
     if analysis is not None:
         current_app.logger.info(f"Cache hit for {symbol}")
@@ -456,8 +443,7 @@ def get_stock_analysis(symbol):
         analysis = invoke_supervisor(symbol)
         if not analysis:
             raise ValueError(f"No analysis returned for {symbol}")
-            
-        # Store in cache with 30 min expiration
+
         cache.set(cache_key, analysis, timeout=1800)
         return analysis
         
@@ -471,7 +457,6 @@ def stock_detail(symbol):
     stock = mock_stock_data.get(symbol)
     
     if not stock:
-        # If stock not found, use a default one (for demo purposes)
         stock = mock_stock_data['AAPL'].copy()
         stock['symbol'] = symbol
         stock['name'] = f"{symbol} Company Inc."
@@ -484,13 +469,10 @@ def stock_detail(symbol):
         stock['country'] = 'United States'
         stock['founded'] = 2000
     
-    # Get fresh analysis
     analysis = get_stock_analysis(symbol)
     print(analysis)
-    # Get recent news for the stock
-    recent_news = get_mock_news(symbol)[:5]  # Get first 5 news items
+    recent_news = get_mock_news(symbol)[:5]
     
-    # Prepare default values in case analysis is None
     default_analysis = {
         'sentiment_analysis': {},
         'company_overview': 'Analysis not available at the moment. Please try again later.',
@@ -510,7 +492,6 @@ def stock_detail(symbol):
         current_app.logger.warning(f"No analysis available for {symbol}, using defaults")
         analysis = default_analysis
     
-    # Prepare the context for the template
     context = {
         'stock': stock,
         'recent_news': recent_news,
@@ -521,11 +502,9 @@ def stock_detail(symbol):
         'risk_assessment': analysis.get('risk_assessment', default_analysis['risk_assessment'])
     }
     
-    # Add any additional stock details
     stock['website'] = '#'
     stock['description'] = f"{symbol} is a leading technology company specializing in innovative solutions for the modern digital age."
     
-    # Add the stock to the context
     context['stock'] = stock
     
     return render_template('stock_detail.html', **context)
@@ -552,10 +531,10 @@ def ai_chat():
 @main.route('/api/chat', methods=['POST'])
 def chat_api():
     """Handle chat messages and return AI responses."""
+    # TODO: USe the Agent from financial_rag_agent notebook to generate responses
     data = request.get_json()
     user_message = data.get('message', '').lower()
     
-    # Simple response logic - in a real app, this would call an LLM API
     responses = {
         'hello': "Hello! I'm your AI investment assistant. How can I help you with your investments today?",
         'hi': "Hi there! I'm here to help with your investment questions. What would you like to know?",
@@ -569,18 +548,15 @@ def chat_api():
         'dividend': "Dividend investing focuses on stocks that pay regular dividends. These are often well-established companies with stable cash flows. Key metrics to consider include dividend yield, payout ratio, and dividend growth history. Would you like help analyzing specific dividend stocks?"
     }
     
-    # Find the best matching response
     response = ""
     for keyword, resp in responses.items():
         if keyword in user_message:
             response = resp
             break
     
-    # Default response if no keyword matches
     if not response:
         response = "I'm here to help with your investment questions. Could you provide more details about what you'd like to know? I can help with stock analysis, portfolio strategies, market trends, and general investment advice."
     
-    # Simulate processing time
     time.sleep(1)
     
     return jsonify({

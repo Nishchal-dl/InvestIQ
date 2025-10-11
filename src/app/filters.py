@@ -11,11 +11,10 @@ def time_ago(dt):
     now = datetime.utcnow()
     
     if isinstance(dt, str):
-        # Try to parse the datetime string
         try:
             dt = datetime.strptime(dt, '%Y-%m-%dT%H:%M:%SZ')
         except (ValueError, TypeError):
-            return dt  # Return as is if can't parse
+            return dt 
     
     diff = now - dt if isinstance(dt, datetime) else now - datetime.fromtimestamp(dt)
     
