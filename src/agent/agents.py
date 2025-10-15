@@ -36,7 +36,7 @@ class StockOverview(BaseModel):
 parser = JsonOutputParser(pydantic_object=StockOverview)
 
 news_agent = create_react_agent(
-    model="openai:gpt-4.1",
+    model="openai:o4-mini",
     tools=[get_news_articles],
     prompt=(
         "You are a news agent.\n\n"
@@ -49,7 +49,7 @@ news_agent = create_react_agent(
 )
 
 stock_agent = create_react_agent(
-    model="openai:gpt-4.1",
+    model="openai:o4-mini",
     tools=[get_stock_data, get_financial_data],
     prompt=(
         "You are a stock agent.\n\n"
@@ -78,7 +78,7 @@ Guidelines:
 """
 
 json_parser_agent = create_react_agent(
-    model="openai:gpt-4.1",
+    model="openai:o4-mini",
     tools=[],
     prompt=(sys_msg),
     name="json_parser_agent",

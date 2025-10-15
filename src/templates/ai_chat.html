@@ -201,31 +201,64 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to perform search
-    function performSearch(query) {
+    async function performSearch(query) {
         if (!query) return;
         
         // Show loading state
         searchButton.disabled = true;
         searchButton.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span>';
         
-        // Here you would typically make an API call to your backend
-        console.log('Searching for:', query);
-        
-        // Simulate API call with timeout
-        setTimeout(() => {
-            // Show the answer section
-            if (answerSection) {
-                answerSection.style.display = 'block';
-                // Scroll to the answer section
-                answerSection.scrollIntoView({ behavior: 'smooth' });
+        try {
+            // Make API call to RAG endpoint
+            const response = await fetch('/api/rag/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ question: query })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
+            const data = await response.json();
+            
+            // Show the answer section
+            if (answerSection) {
+                // Update answer content
+                const answerContent = answerSection.querySelector('.answer-content');
+                if (answerContent) {
+                    answerContent.innerHTML = data.answer || 'No answer found.';
+                }
+                
+                // Update timestamp
+                const timestampElement = answerSection.querySelector('.timestamp');
+                if (timestampElement) {
+                    const date = new Date(data.timestamp);
+                    timestampElement.textContent = `Last updated: ${date.toLocaleString()}`;
+                }
+                
+                answerSection.style.display = 'block';
+                answerSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        } catch (error) {
+            console.error('Error performing search:', error);
+            // Show error message to user
+            if (answerSection) {
+                const answerContent = answerSection.querySelector('.answer-content');
+                if (answerContent) {
+                    answerContent.innerHTML = 'Sorry, there was an error processing your request. Please try again later.';
+                    answerSection.style.display = 'block';
+                    answerSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        } finally {
             // Reset button state
             searchButton.disabled = false;
             searchButton.innerHTML = '<span class="material-symbols-outlined">send</span>';
-            
-            // In a real app, you would update the answer section with the API response here
-        }, 1000);
+        }
     }
 
     // Handle form submission

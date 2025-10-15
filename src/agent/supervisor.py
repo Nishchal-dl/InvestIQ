@@ -4,7 +4,7 @@ from langchain.chat_models import init_chat_model
 from src.agent.agents import json_parser_agent, news_agent, stock_agent
 
 supervisor = create_supervisor(
-    model=init_chat_model("openai:gpt-4.1"),
+    model=init_chat_model("openai:o4-mini"),
     agents=[stock_agent, news_agent, json_parser_agent],
     prompt=(
         "You are a supervisor managing three agents:\n"
@@ -27,13 +27,13 @@ STOCK DATA for {ticker.upper()}:
 Provide your analysis in the exact JSON format specified, with no additional text.
 """
 
-def invoke_supervisor(ticker: str) -> str:
+def invoke_supervisor(message: str) -> str:
     response = supervisor.invoke(
     {
         "messages": [
             {
                 "role": "user",
-                "content": prepare_human_message(ticker),
+                "content": message,
             }
         ]
     })
@@ -42,3 +42,15 @@ def invoke_supervisor(ticker: str) -> str:
 
     lm = response['messages'][-1]
     return json.loads(lm.model_dump()['content'])
+
+def query_supervisor(question: str) -> str:
+    response = supervisor.invoke(
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": question,
+            }
+        ]
+    })
+    return response['messages'][-1].content

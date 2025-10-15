@@ -5,14 +5,15 @@ import json
 import time
 from functools import wraps
 from flask_caching import Cache
-from src.agent.supervisor import invoke_supervisor
+from src.agent.supervisor import invoke_supervisor, prepare_human_message, query_supervisor
+
 
 import os
 from dotenv import load_dotenv
 from pathlib import Path
 
 env_path = Path(__file__).parent.parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
+load_dotenv(dotenv_path=env_path, override=True)
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -440,7 +441,8 @@ def get_stock_analysis(symbol):
         
     try:
         current_app.logger.info(f"Cache miss for {symbol}, fetching from supervisor")
-        analysis = invoke_supervisor(symbol)
+        prompt = prepare_human_message(symbol)
+        analysis = invoke_supervisor(prompt)
         if not analysis:
             raise ValueError(f"No analysis returned for {symbol}")
 
@@ -531,35 +533,41 @@ def ai_chat():
 @main.route('/api/chat', methods=['POST'])
 def chat_api():
     """Handle chat messages and return AI responses."""
-    # TODO: USe the Agent from financial_rag_agent notebook to generate responses
-    data = request.get_json()
-    user_message = data.get('message', '').lower()
-    
-    responses = {
-        'hello': "Hello! I'm your AI investment assistant. How can I help you with your investments today?",
-        'hi': "Hi there! I'm here to help with your investment questions. What would you like to know?",
-        'what stocks should i buy': "I can't provide specific investment advice, but I can help you research stocks. What type of companies are you interested in?",
-        'how to start investing': "To start investing, consider these steps: 1) Set clear financial goals 2) Build an emergency fund 3) Pay off high-interest debt 4) Start with index funds or ETFs 5) Diversify your portfolio. Would you like more details on any of these steps?",
-        'market trend': "I currently don't have real-time market data, but I can help you analyze specific stocks or sectors. What would you like to know more about?",
-        'portfolio': "To help you with your portfolio, I'd need to know what investments you currently hold and what your financial goals are. Would you like to discuss a specific aspect of portfolio management?",
-        'risk': "Investment risk varies by asset class. Generally, stocks are riskier than bonds, but offer higher potential returns. Your risk tolerance depends on your investment timeline and financial goals. What's your investment horizon?",
-        'retirement': "For retirement planning, consider: 1) Contributing to tax-advantaged accounts like 401(k) or IRA 2) Asset allocation based on your age and risk tolerance 3) Regular contributions 4) Rebalancing periodically. Would you like more details on any of these areas?",
-        'crypto': "Cryptocurrencies are highly volatile and speculative investments. They can offer high returns but come with significant risk. It's generally recommended to allocate only a small portion of your portfolio to crypto if you choose to invest. Would you like to discuss risk management strategies?",
-        'dividend': "Dividend investing focuses on stocks that pay regular dividends. These are often well-established companies with stable cash flows. Key metrics to consider include dividend yield, payout ratio, and dividend growth history. Would you like help analyzing specific dividend stocks?"
-    }
-    
-    response = ""
-    for keyword, resp in responses.items():
-        if keyword in user_message:
-            response = resp
-            break
-    
-    if not response:
-        response = "I'm here to help with your investment questions. Could you provide more details about what you'd like to know? I can help with stock analysis, portfolio strategies, market trends, and general investment advice."
-    
-    time.sleep(1)
-    
-    return jsonify({
-        'response': response,
-        'timestamp': datetime.utcnow().isoformat()
-    })
+    try:
+        data = request.get_json()
+        message = data.get('message', '').strip()
+        
+        if not message:
+            return jsonify({'error': 'Empty message'}), 400
+
+        response = invoke_supervisor(message)
+        
+        return jsonify({
+            'response': response,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error in chat_api: {str(e)}")
+        return jsonify({'error': 'An error occurred while processing your request'}), 500
+
+@main.route('/api/rag/query', methods=['POST'])
+def rag_query():
+    """Handle RAG-based queries and return responses."""
+    try:
+        data = request.get_json()
+        question = data.get('question', '').strip()
+        
+        if not question:
+            return jsonify({'error': 'Empty question'}), 400
+        
+        response = query_supervisor(question)
+        print(response)
+        return jsonify({
+            'answer': response,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error in rag_query: {str(e)}")
+        return jsonify({'error': 'An error occurred while processing your RAG query'}), 500
