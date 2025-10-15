@@ -405,11 +405,6 @@ def dashboard():
     except Exception as e:
         print(f"Error in dashboard route: {str(e)}")
         watchlist = [
-            mock_stock_data['AAPL'],
-            mock_stock_data['MSFT'],
-            mock_stock_data['GOOGL'],
-            mock_stock_data['AMZN'],
-            mock_stock_data['TSLA']
         ]
         
         all_news = []
@@ -426,7 +421,6 @@ def dashboard():
             ai_insights={},
             recent_activity=[]
         )
-    return render_template('dashboard.html', watchlist=watchlist, news=recent_news)
 
 def get_stock_analysis(symbol):
     """Helper function to get stock analysis from supervisor agent with caching"""
@@ -472,7 +466,6 @@ def stock_detail(symbol):
         stock['founded'] = 2000
     
     analysis = get_stock_analysis(symbol)
-    print(analysis)
     recent_news = get_mock_news(symbol)[:5]
     
     default_analysis = {
@@ -541,7 +534,7 @@ def chat_api():
             return jsonify({'error': 'Empty message'}), 400
 
         response = invoke_supervisor(message)
-        
+
         return jsonify({
             'response': response,
             'timestamp': datetime.utcnow().isoformat()
