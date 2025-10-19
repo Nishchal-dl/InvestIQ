@@ -10,9 +10,9 @@ It was developed as part of the Final Team Project 'Multi-Agent System' for the 
 pip install -r requirements.txt
 ```
 
-To run the financial_rag_agent notebook make sure to download the dataset from Kaggle [Financial Reports QA Dataset for RAG-based LLM Fin](https://www.kaggle.com/datasets/ahmedsta/data-retreiver) and place it in a folder called dataset at the root of the project.
+To run the notebooks make sure to download the dataset from Kaggle [Financial Reports QA Dataset for RAG-based LLM Fin](https://www.kaggle.com/datasets/ahmedsta/data-retreiver) and place it in a folder called dataset at the root of the project.
 
-The other 2 notebooks can be run without any additional setup but make sure to set the environment variables in the .env file (Refer to .env.example for the necessary variables).
+Also make sure to set the environment variables in the .env file (Refer to .env.example for the necessary variables).
 
 ## Usage
 To run the flask app
@@ -25,9 +25,3 @@ To run the induvidual notebooks
 ```bash
 jupyter notebook <notebook_name>.ipynb
 ```
-
-## TODO
-- Implement AI insight in the dashboard
-- Use RAG from financial_rag_agent notebook to answer questions about the stock
-- Report
-- Demo
